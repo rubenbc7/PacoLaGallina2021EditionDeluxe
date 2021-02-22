@@ -1,17 +1,20 @@
 from OpenGL.GL import *
 from glew_wish import *
 import glfw
-import time
-import datetime
+from math import *
 
 xObstaculo = 0.0
 yObstaculo = -0.6
 
-xCarrito = 0.0
-yCarrito = 0.0
+xCarrito = -0.6
+yCarrito = -0.35
 
 xPiso = 0.0
 yPiso = 0.0
+
+xNube = 0.0
+
+tiempo_anterior = 0
 
 colisionando = False
 
@@ -22,9 +25,15 @@ def chocando(x1,y1,w1,h1,x2,y2,w2,h2):
     return False
 
 def actualizar(window):
+    global tiempo_anterior
     global xCarrito
     global yCarrito
-    
+    global xNube
+
+    tiempo_actual = glfw.get_time()
+    tiempo_delta = tiempo_actual - tiempo_anterior
+
+
     estadoIzquierda = glfw.get_key(window, glfw.KEY_LEFT)
     estadoDerecha = glfw.get_key(window, glfw.KEY_RIGHT)
     estadoAbajo = glfw.get_key(window, glfw.KEY_DOWN)
@@ -35,9 +44,9 @@ def actualizar(window):
     
    
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = xCarrito - 0.03
+        xCarrito = (xCarrito - 0.003)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = xCarrito + 0.03
+        xCarrito = (xCarrito + 0.003)
     if estadoAbajo == glfw.PRESS and yCarrito - 0.05 > -1:
         if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
             yCarrito = yCarrito - 0.03
@@ -45,6 +54,8 @@ def actualizar(window):
         if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
             yCarrito = (yCarrito + 0.4) 
     
+    if (xNube > -2):
+        xNube = xNube - 0.0001
 
 def dibujarObstaculo():
     global xObstaculo
@@ -53,7 +64,7 @@ def dibujarObstaculo():
 
     glTranslate(xObstaculo, yObstaculo,0.0)
     glBegin(GL_QUADS)
-    glColor3f(1.0,0.5,0.6)
+    glColor3f(0,0.6,0.1)
     glVertex3f(-1,0.15,0.0)
     glVertex3f(1,0.15,0.0)
     glVertex3f(1,-0.15,0.0)
@@ -61,20 +72,192 @@ def dibujarObstaculo():
     glEnd()
     glPopMatrix()
 
+#paco
 def dibujarCarrito():
     global xCarrito
     global yCarrito
 
     glPushMatrix()
     glTranslate(xCarrito, yCarrito, 0.0)
-    glBegin(GL_TRIANGLES)
-  
-    glColor3f(0.8,0.8,0.1)
-    glVertex3f(0.0,0.05,0.0)
-    glVertex3f(-0.05,-0.05,0.0)
-    glVertex3f(0.05,-0.05,0.0)
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+
+    #cuerpo
+    glVertex3f(-0.05,0.01,0.0)
+    glVertex3f(0.03,0.01,0.0)
+    glVertex3f(0.03,-0.02,0.0)
+    glVertex3f(-0.04,-0.02,0.0)
+
+    glVertex3f(-0.04,-0.02,0.0)
+    glVertex3f(0.02,-0.02,0.0)
+    glVertex3f(0.02,-0.03,0.0)
+    glVertex3f(-0.02,-0.03,0.0)
+    glEnd()
+
+    #patas
+    glBegin(GL_POLYGON)
+    glColor3f(1,0.9,0.25)
+    glVertex2f(0.0,-0.03)
+    glVertex2f(0.01,-0.03)
+    glVertex2f(0.01,-0.06)
+    glVertex2f(0.00,-0.06)
+    glEnd()
+    
+    glBegin(GL_POLYGON)
+    glVertex2f(-0.02,-0.03)
+    glVertex2f(-0.01,-0.03)
+    glVertex2f(-0.01,-0.06)
+    glVertex2f(-0.02,-0.06)
+    glEnd()
+
+    #cabeza
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    glVertex2f(0.01,0.01)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.03,0.03)
+    glVertex2f(0.01,0.03)
+    glEnd()
+
+    #cresta
+    glBegin(GL_POLYGON)
+    glColor3f(1,0,0)
+    glVertex2f(0.01,0.03)
+    glVertex2f(0.04,0.03)
+    glVertex2f(0.04,0.04)
+    glVertex2f(0.01,0.04)
+    glEnd()
+
+    #pico
+    glBegin(GL_POLYGON)
+    glColor3f(1,0.9,0.25)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.05,0.01)
+    glVertex2f(0.05,0.02)
+    glVertex2f(0.03,0.02)
+    glEnd()
+
+    #barbilla
+    glBegin(GL_POLYGON)
+    glColor3f(1,0,0)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.04,0.01)
+    glVertex2f(0.04,0.00)
+    glVertex2f(0.03,0.00)
+    glEnd()
+
+    #cola
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    glVertex2f(-0.02,0.01)
+    glVertex2f(-0.05,0.01)
+    glVertex2f(-0.045,0.015)
+    glVertex2f(-0.02,0.015)
+    glEnd()
+
+
+    glPopMatrix()
+
+def dibujarGranero():
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_QUADS)
+    glColor3f(1,0,0)
+    glVertex2f(-0.8,0.0)
+    glVertex2f(-0.4,0.0)
+    glVertex2f(-0.4,0.3)
+    glVertex2f(-0.8,0.3)
     glEnd()
     glPopMatrix()
+
+    #bordeTecho
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    glVertex2f(-0.86,0.25)
+    glVertex2f(-0.71,0.45)
+    glVertex2f(-0.60,0.51)
+    glVertex2f(-0.49,0.45)
+    glVertex2f(-0.34,0.25)
+    glEnd()
+    glPopMatrix()
+
+    #techo
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_POLYGON)
+    glColor3f(1,0,0)
+    glVertex2f(-0.85,0.25)
+    glVertex2f(-0.70,0.45)
+    glVertex2f(-0.6,0.50)
+    glVertex2f(-0.50,0.45)
+    glVertex2f(-0.35,0.25)
+    glEnd()
+    glPopMatrix()
+
+    #bordeVentana
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_QUADS)
+    glColor3f(1,1,1)
+    glVertex2f(-0.66,0.29)
+    glVertex2f(-0.54,0.29)
+    glVertex2f(-0.54,0.41)
+    glVertex2f(-0.66,0.41)
+    glEnd()
+    glPopMatrix()
+
+    #ventana
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_QUADS)
+    glColor3f(0,0,0)
+    glVertex2f(-0.65,0.30)
+    glVertex2f(-0.55,0.30)
+    glVertex2f(-0.55,0.40)
+    glVertex2f(-0.65,0.40)
+    glEnd()
+    glPopMatrix()
+
+    #marcoPuerta
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_QUADS)
+    glColor3f(1,1,1)
+    glVertex2f(-0.71,0.0)
+    glVertex2f(-0.49,0.0)
+    glVertex2f(-0.49,0.21)
+    glVertex2f(-0.71,0.21)
+    glEnd()
+    glPopMatrix()
+
+    #interiorPuerta
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_QUADS)
+    glColor3f(0,0,0)
+    glVertex2f(-0.7,0.0)
+    glVertex2f(-0.5,0.0)
+    glVertex2f(-0.5,0.2)
+    glVertex2f(-0.7,0.2)
+    glEnd()
+    glPopMatrix()
+
+def dibujarNubes():
+    global xNube
+    glPushMatrix()
+    glTranslate(xNube,0,0)
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    for x in range(360):
+        angulo = x * 3.14159 / 180.0
+        glVertex3f(cos(angulo) * 0.3 + 0.6 , sin(angulo) * 0.06 + 0.4 ,0.0)
+    glColor3f(0,0,0)
+
+    glEnd()
+    glPopMatrix()
+
 
 def dibujarPiso():
     global xPiso
@@ -83,7 +266,7 @@ def dibujarPiso():
     glPushMatrix()
     glTranslate(xPiso, yPiso, 0.0)
     glBegin(GL_QUADS)
-    glColor3f(0.0,0.5,0.6)
+    glColor3f(1,0.7,0.0)
     glVertex3f(-1,-0.6,0.0)
     glVertex3f(1,-0.6,0.0)
     glVertex3f(1,-1,0.0)
@@ -91,13 +274,14 @@ def dibujarPiso():
     glEnd()
     glPopMatrix()
 
-
 def dibujar():
     #rutinas de dibujo
+    dibujarGranero()
     dibujarObstaculo()
     dibujarPiso()
     dibujarCarrito()
-
+    dibujarNubes()
+    
 def main():
     #inicia glfw
     if not glfw.init():
@@ -105,8 +289,8 @@ def main():
     
     #crea la ventana, 
     # independientemente del SO que usemos
-    window = glfw.create_window(800,800,"Mi ventana", None, None)
-
+    window = glfw.create_window(800,800,"PACO LA GALLINA", None, None)
+    
     #Configuramos OpenGL
     glfw.window_hint(glfw.SAMPLES, 4)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,3)
@@ -141,7 +325,7 @@ def main():
         #Establece regiond e dibujo
         glViewport(0,0,800,800)
         #Establece color de borrado
-        glClearColor(0.2,0.2,0.7,1)
+        glClearColor(0.0,0.7,1,1)
         #Borra el contenido de la ventana
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -159,6 +343,8 @@ def main():
     glfw.destroy_window(window)
     #Termina los procesos que inició glfw.init
     glfw.terminate()
+
+
 
 if __name__ == "__main__":
     main()
