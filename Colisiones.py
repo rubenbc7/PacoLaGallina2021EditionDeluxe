@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from glew_wish import *
 import glfw
 from math import *
+import sys
 
 xObstaculo = 0.0
 yObstaculo = -0.6
@@ -62,12 +63,14 @@ def actualizar(window):
     estadoAbajo = glfw.get_key(window, glfw.KEY_DOWN)
     estadoArriba = glfw.get_key(window, glfw.KEY_SPACE)
 
+    checar_colisiones()
+
     if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = yCarrito - 0.01
+            yCarrito = yCarrito - 0.01 
     
    
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - 0.003)
+        xCarrito = (xCarrito - 0.003) 
         if yrCarrito == 0:
             yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
@@ -80,12 +83,14 @@ def actualizar(window):
             yCarrito = yCarrito - 0.03
     if estadoArriba == glfw.PRESS and yCarrito + 0.05 + 0.01 < 1:
         if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = (yCarrito + 0.3)
+            yCarrito = (yCarrito + 0.3) * tiempo_delta
     
     if (xNube > -2):
         xNube = xNube - 0.0001
     else:
         xNube = 0.8
+
+    tiempo_anterior = tiempo_actual
 
 def dibujarSilo():
     glPushMatrix()
@@ -139,13 +144,13 @@ def dibujarPaja():
     glTranslate(xPaja,yPaja,0.0)
     glBegin(GL_QUADS)
     if colisionando == True:
-        glColor3f(1.0, 1.0, 1.0)
+        sys.exit()
     else:
-        glColor3f(0.0,0.0,1.0)
-    glVertex3f(-0.15, 0.15, 0.0)
-    glVertex3f(0.15, 0.15, 0.0)
-    glVertex3f(0.15, -0.15, 0.0)
-    glVertex3f(-0.15, -0.15, 0.0)
+        glColor3f(0, 0, 1.0)
+    glVertex3f(-0.05, 0.05, 0.0)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.05, -0.05, 0.0)
+    glVertex3f(-0.05, -0.05, 0.0)
     glEnd()
     glPopMatrix()    
 
