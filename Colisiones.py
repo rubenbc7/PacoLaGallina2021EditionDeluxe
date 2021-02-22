@@ -3,12 +3,31 @@ from glew_wish import *
 import glfw
 from math import *
 import sys
+import playsound
+import time
 
 xObstaculo = 0.0
 yObstaculo = -0.6
 
 xPaja = 0.0
 yPaja = -0.4
+DirPaja = 1
+yrPaja = 0.0
+
+xPaja2 = 0.7
+yPaja2 = -0.4
+DirPaja2 = 1
+yrPaja2 = 0.0
+
+xAve = -0.6
+yAve = 0.1
+DirAve = 1
+yrAve = 0.0
+
+xAve2 = 0.8
+yAve2 = -0.2
+DirAve2 = 1
+yrAve2 = 0.0
 
 xCarrito = -0.6
 yCarrito = -0.35
@@ -19,10 +38,14 @@ xPiso = 0.0
 yPiso = 0.0
 
 xNube = 0.8
-
 tiempo_anterior = 0
 saltando = 0
+vidas=12
 
+
+playsound.playsound('music.mp3', False)
+print("Porfavor seleccione un numero del 1 al 5 para la dificultad y presione ENTER antes de continuar:")
+vmx = (float(input()) / 200)
 colisionando = False
 
 angMolino = 0
@@ -33,6 +56,12 @@ def checar_colisiones():
     global yPaja
     global xCarrito
     global yCarrito 
+    global xAve
+    global yAve
+    global xAve2
+    global yAve2
+    global xPaja2
+    global yPaja2
 
     #Si extremaDerechaCarrito > extremaIzquiedaObstaculo
     # Y extremaIzquierdaCarrito < extremaDerechaObstaculo
@@ -40,6 +69,13 @@ def checar_colisiones():
     # Y extremoSuperirorCarrito < extremoInferirorObstaculo
     if xPaja + 0.05 > xCarrito - 0.05 and xPaja - 0.05 < xCarrito + 0.05 and yPaja + 0.05 > yCarrito - 0.05 and yPaja - 0.05 < yCarrito + 0.05:
         colisionando = True
+    elif xAve + 0.05 > xCarrito - 0.05 and xAve - 0.05 < xCarrito + 0.05 and yAve + 0.05 > yCarrito - 0.05 and yAve - 0.05 < yCarrito + 0.05:
+        colisionando = True
+    elif xAve2 + 0.05 > xCarrito - 0.05 and xAve2 - 0.05 < xCarrito + 0.05 and yAve2 + 0.05 > yCarrito - 0.05 and yAve2 - 0.05 < yCarrito + 0.05:
+        colisionando = True
+    elif xPaja2 + 0.05 > xCarrito - 0.05 and xPaja2 - 0.05 < xCarrito + 0.05 and yPaja2 + 0.05 > yCarrito - 0.05 and yPaja2 - 0.05 < yCarrito + 0.05:
+        colisionando = True
+
     else:
         colisionando = False
 
@@ -62,6 +98,64 @@ def actualizar(window):
     tiempo_actual = glfw.get_time()
     tiempo_delta = tiempo_actual - tiempo_anterior
 
+    global vmx
+    global xPaja
+    global xAve
+    global DirPaja
+    global DirAve
+    global yrPaja
+    global yrAve
+    global xAve2
+    global DirAve2
+    global yrAve2
+    global xPaja2
+    global yPaja2
+    global yrPaja2
+    global DirPaja2
+
+    #PerroAliasElPajas
+    if xPaja > 1.6:
+        DirPaja =-1
+        yrPaja = (yrPaja - 180)
+     
+    if xPaja < -1.1:
+        DirPaja =1
+        yrPaja = (yrPaja + 180)
+        
+    xPaja = (xPaja + vmx * DirPaja) 
+
+    if xPaja2 > 1.5:
+        DirPaja2 =-1
+        yrPaja2 = (yrPaja2 - 180)
+     
+    if xPaja2 < -1.3:
+        DirPaja2 =1
+        yrPaja2 = (yrPaja2 + 180)
+        
+    xPaja2 = (xPaja2 + vmx * DirPaja2) 
+
+    #Aves
+    if xAve > 1.4:
+        DirAve =-1
+        yrAve = (yrAve - 180)
+     
+    if xAve < -1.8:
+        DirAve =1
+        yrAve = (yrAve + 180)
+        
+    xAve = (xAve + vmx * DirAve)
+
+    if xAve2 > 1.05:
+        DirAve2 =-1
+        yrAve2 = (yrAve2 - 180)
+     
+    if xAve2 < -1.3:
+        DirAve2 =1
+        yrAve2 = (yrAve2 + 180)
+        
+    xAve2 = (xAve2 + vmx * DirAve2)
+
+    #Paco
     estadoIzquierda = glfw.get_key(window, glfw.KEY_LEFT)
     estadoDerecha = glfw.get_key(window, glfw.KEY_RIGHT)
     estadoAbajo = glfw.get_key(window, glfw.KEY_DOWN)
@@ -73,11 +167,11 @@ def actualizar(window):
             yCarrito = yCarrito - 0.01
 
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - 0.01)
+        xCarrito = (xCarrito - vmx)
         if yrCarrito == 0:
             yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = ((xCarrito + 0.01) * tiempo_delta)/tiempo_actual
+        xCarrito = xCarrito + vmx
         if yrCarrito == -180:
             yrCarrito = 0
 
@@ -93,13 +187,15 @@ def actualizar(window):
     if yCarrito >= 0.2:
         saltando = 0
                 
-    
+    #Nube
     if (xNube > -2):
         xNube = xNube - 0.0001
     else:
         xNube = 0.8
     
     angMolino = angMolino + 0.1
+
+    vmx = vmx + (glfw.get_time() / 100000000000000000000000000000000000000000000000000000) 
 
 
 
@@ -149,20 +245,428 @@ def dibujarPaja():
     global xPaja
     global yPaja
     global colisionando
+    global yrPaja
+    global vidas
+    global yCarrito
     
+    if colisionando == True:
+        playsound.playsound('uff.mp3', False)
+        if vidas > 0:
+            vidas = vidas - 1
+            yCarrito = yCarrito + 0.3
+            if vidas == 11:
+                print("Te quedan 2 vidas extra.")
+            elif vidas == 7:
+             print("Te quedan 1 vidas extra.")
+            elif vidas == 3:
+             print("No te quedan vidas extra.")
+        elif vidas <= 0:
+            print("GAME OVER")
+            print("Sobreviviste:")
+            print(glfw.get_time())
+            print("Segundos")
+            sys.exit()   
     glPushMatrix()
     glTranslate(xPaja,yPaja,0.0)
+    glRotate(yrPaja,0.0,1.0,0.0)
+
+    #perritow
     glBegin(GL_QUADS)
-    if colisionando == True:
-        sys.exit()
-    else:
-        glColor3f(0, 0, 1.0)
-    glVertex3f(-0.05, 0.05, 0.0)
-    glVertex3f(0.05, 0.05, 0.0)
-    glVertex3f(0.05, -0.05, 0.0)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(-0.06, 0.02, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.03, -0.03, 0.0)
+    glVertex3f(-0.06, -0.03, 0.0)
+    glEnd()
+
+    #pataz
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(-0.05, -0.04, 0.0)
+    glVertex3f(-0.03, -0.04, 0.0)
+    glVertex3f(-0.03, -0.05, 0.0)
     glVertex3f(-0.05, -0.05, 0.0)
     glEnd()
-    glPopMatrix()    
+
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(-0.06, -0.03, 0.0)
+    glVertex3f(-0.04, -0.03, 0.0)
+    glVertex3f(-0.04, -0.05, 0.0)
+    glVertex3f(-0.06, -0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(0.02, -0.03, 0.0)
+    glVertex3f(0.03, -0.03, 0.0)
+    glVertex3f(0.03, -0.05, 0.0)
+    glVertex3f(0.02, -0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(0.01, -0.03, 0.0)
+    glVertex3f(0.02, -0.03, 0.0)
+    glVertex3f(0.02, -0.05, 0.0)
+    glVertex3f(0.01, -0.05, 0.0)
+    glEnd()
+
+    #collar
+    glBegin(GL_QUADS)
+    glColor3f(0.6, 0, 0)
+    glVertex3f(0.01, 0.03, 0.0)
+    glVertex3f(0.03, 0.03, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.01, 0.02, 0.0)
+    glEnd()
+
+    #collaramarillo
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 0.2)
+    glVertex3f(0.02, 0.02, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.03, 0.01, 0.0)
+    glVertex3f(0.02, 0.01, 0.0)
+    glEnd()
+
+    #Cabeza
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(0.01, 0.05, 0.0)
+    glVertex3f(0.06, 0.05, 0.0)
+    glVertex3f(0.06, 0.03, 0.0)
+    glVertex3f(0.01, 0.03, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.4, 0.2, 0.1)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.06, 0.05, 0.0)
+    glVertex3f(0.06, 0.04, 0.0)
+    glVertex3f(0.05, 0.04, 0.0)
+    glEnd()
+
+
+
+    glBegin(GL_QUADS)
+    glColor3f(0.8, 0.5, 0.2)
+    glVertex3f(0.01, 0.07, 0.0)
+    glVertex3f(0.05, 0.07, 0.0)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.01, 0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.4, 0.2, 0.1)
+    glVertex3f(-0.01, 0.07, 0.0)
+    glVertex3f(0.02, 0.07, 0.0)
+    glVertex3f(0.02, 0.03, 0.0)
+    glVertex3f(-0.01, 0.03, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(0.04, 0.06, 0.0)
+    glVertex3f(0.05, 0.06, 0.0)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.04, 0.05, 0.0)
+    glEnd()
+    #cola
+    glBegin(GL_QUADS)
+    glColor3f(0.4, 0.2, 0.1)
+    glVertex3f(-0.07, 0.03, 0.0)
+    glVertex3f(-0.05, 0.03, 0.0)
+    glVertex3f(-0.05, 0.02, 0.0)
+    glVertex3f(-0.07, 0.02, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.4, 0.2, 0.1)
+    glVertex3f(-0.08, 0.04, 0.0)
+    glVertex3f(-0.06, 0.04, 0.0)
+    glVertex3f(-0.06, 0.03, 0.0)
+    glVertex3f(-0.08, 0.03, 0.0)
+    glEnd()
+
+    glPopMatrix() 
+
+def dibujarPaja2():
+    global xPaja2
+    global yPaja2
+    global colisionando
+    global yrPaja2
+    global vidas
+    global yCarrito
+    
+    if colisionando == True:
+        if vidas > 0:
+            vidas = vidas - 1
+            yCarrito = yCarrito + 0.3
+            if vidas == 11:
+                print("Te quedan 2 vidas extra.")
+            elif vidas == 7:
+             print("Te quedan 1 vidas extra.")
+            elif vidas == 3:
+             print("No te quedan vidas extra.")
+        elif vidas <= 0:
+            print("GAME OVER")
+            print("Sobreviviste:")
+            print(glfw.get_time())
+            print("Segundos")
+            sys.exit()  
+    glPushMatrix()
+    glTranslate(xPaja2,yPaja2,0.0)
+    glRotate(yrPaja2,0.0,1.0,0.0)
+
+    #perritow
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(-0.06, 0.02, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.03, -0.03, 0.0)
+    glVertex3f(-0.06, -0.03, 0.0)
+    glEnd()
+
+    #pataz
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 1)
+    glVertex3f(-0.05, -0.04, 0.0)
+    glVertex3f(-0.03, -0.04, 0.0)
+    glVertex3f(-0.03, -0.05, 0.0)
+    glVertex3f(-0.05, -0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(-0.06, -0.03, 0.0)
+    glVertex3f(-0.04, -0.03, 0.0)
+    glVertex3f(-0.04, -0.05, 0.0)
+    glVertex3f(-0.06, -0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(0.02, -0.03, 0.0)
+    glVertex3f(0.03, -0.03, 0.0)
+    glVertex3f(0.03, -0.05, 0.0)
+    glVertex3f(0.02, -0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(0.01, -0.03, 0.0)
+    glVertex3f(0.02, -0.03, 0.0)
+    glVertex3f(0.02, -0.05, 0.0)
+    glVertex3f(0.01, -0.05, 0.0)
+    glEnd()
+
+    #collar
+    glBegin(GL_QUADS)
+    glColor3f(0.1, 0, 0.8)
+    glVertex3f(0.01, 0.03, 0.0)
+    glVertex3f(0.03, 0.03, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.01, 0.02, 0.0)
+    glEnd()
+
+    #collaramarillo
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 0.2)
+    glVertex3f(0.02, 0.02, 0.0)
+    glVertex3f(0.03, 0.02, 0.0)
+    glVertex3f(0.03, 0.01, 0.0)
+    glVertex3f(0.02, 0.01, 0.0)
+    glEnd()
+
+    #Cabeza
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0)
+    glVertex3f(0.01, 0.05, 0.0)
+    glVertex3f(0.06, 0.05, 0.0)
+    glVertex3f(0.06, 0.03, 0.0)
+    glVertex3f(0.01, 0.03, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(0.4, 0.2, 0.1)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.06, 0.05, 0.0)
+    glVertex3f(0.06, 0.04, 0.0)
+    glVertex3f(0.05, 0.04, 0.0)
+    glEnd()
+
+
+
+    glBegin(GL_QUADS)
+    glColor3f(0, 0, 0.)
+    glVertex3f(0.01, 0.07, 0.0)
+    glVertex3f(0.05, 0.07, 0.0)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.01, 0.05, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 1)
+    glVertex3f(-0.01, 0.07, 0.0)
+    glVertex3f(0.02, 0.07, 0.0)
+    glVertex3f(0.02, 0.03, 0.0)
+    glVertex3f(-0.01, 0.03, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 0.2)
+    glVertex3f(0.04, 0.06, 0.0)
+    glVertex3f(0.05, 0.06, 0.0)
+    glVertex3f(0.05, 0.05, 0.0)
+    glVertex3f(0.04, 0.05, 0.0)
+    glEnd()
+    #cola
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 1)
+    glVertex3f(-0.07, 0.03, 0.0)
+    glVertex3f(-0.05, 0.03, 0.0)
+    glVertex3f(-0.05, 0.02, 0.0)
+    glVertex3f(-0.07, 0.02, 0.0)
+    glEnd()
+
+    glBegin(GL_QUADS)
+    glColor3f(1, 1, 1)
+    glVertex3f(-0.08, 0.04, 0.0)
+    glVertex3f(-0.06, 0.04, 0.0)
+    glVertex3f(-0.06, 0.03, 0.0)
+    glVertex3f(-0.08, 0.03, 0.0)
+    glEnd()
+
+    glPopMatrix() 
+
+def dibujarAve():
+    global xAve
+    global yAve
+    global colisionando
+    global yrAve
+    global vidas
+    global yCarrito
+    
+    if colisionando == True:
+        if vidas > 0:
+            vidas = vidas - 1
+            yCarrito = yCarrito + 0.3
+            if vidas == 11:
+                print("Te quedan 2 vidas extra.")
+            elif vidas == 7:
+             print("Te quedan 1 vidas extra.")
+            elif vidas == 3:
+             print("No te quedan vidas extra.")
+        elif vidas <= 0:
+            print("GAME OVER")
+            print("Sobreviviste:")
+            print(glfw.get_time())
+            print("Segundos")
+            sys.exit()   
+    
+    
+    glPushMatrix()
+    glTranslate(xAve,yAve,0.0)
+    glRotate(yrAve,0.0,1.0,0.0)
+    glBegin(GL_POLYGON)
+    glColor3f(0.6,0.6,0.5)
+
+    #cuerpo
+    glVertex3f(-0.05,0.01,0.0)
+    glVertex3f(0.03,0.01,0.0)
+    glVertex3f(0.03,-0.02,0.0)
+    glVertex3f(-0.04,-0.02,0.0)
+
+    glVertex3f(-0.04,-0.02,0.0)
+    glVertex3f(0.02,-0.02,0.0)
+    glVertex3f(0.02,-0.03,0.0)
+    glVertex3f(-0.02,-0.03,0.0)
+    glEnd()
+
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    glVertex2f(0.01,0.01)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.03,0.03)
+    glVertex2f(0.01,0.03)
+    glEnd()
+
+    glBegin(GL_POLYGON)
+    glColor3f(1,0.9,0.25)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.05,0.01)
+    glVertex2f(0.05,0.02)
+    glVertex2f(0.03,0.02)
+    glEnd()
+
+
+    glPopMatrix()  
+
+
+def dibujarAve2():
+    global xAve2
+    global yAve2
+    global colisionando
+    global yrAve2
+    global vidas
+    global yCarrito
+    
+    if colisionando == True:
+        if vidas > 0:
+            vidas = vidas - 1
+            yCarrito = yCarrito + 0.3
+            if vidas == 11:
+                print("Te quedan 2 vidas extra.")
+            elif vidas == 7:
+             print("Te quedan 1 vidas extra.")
+            elif vidas == 3:
+             print("No te quedan vidas extra.")
+        elif vidas <= 0:
+            print("GAME OVER")
+            print("Sobreviviste:")
+            print(glfw.get_time())
+            print("Segundos")
+            sys.exit()  
+    
+    
+    glPushMatrix()
+    glTranslate(xAve2,yAve2,0.0)
+    glRotate(yrAve2,0.0,1.0,0.0)
+    glBegin(GL_POLYGON)
+    glColor3f(0.2,0.6,0.8)
+
+    #cuerpo
+    glVertex3f(-0.05,0.01,0.0)
+    glVertex3f(0.03,0.01,0.0)
+    glVertex3f(0.03,-0.02,0.0)
+    glVertex3f(-0.04,-0.02,0.0)
+
+    glVertex3f(-0.04,-0.02,0.0)
+    glVertex3f(0.02,-0.02,0.0)
+    glVertex3f(0.02,-0.03,0.0)
+    glVertex3f(-0.02,-0.03,0.0)
+    glEnd()
+
+    glBegin(GL_POLYGON)
+    glColor3f(1,1,1)
+    glVertex2f(0.01,0.01)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.03,0.03)
+    glVertex2f(0.01,0.03)
+    glEnd()
+
+    glBegin(GL_POLYGON)
+    glColor3f(1,0.9,0.25)
+    glVertex2f(0.03,0.01)
+    glVertex2f(0.05,0.01)
+    glVertex2f(0.05,0.02)
+    glVertex2f(0.03,0.02)
+    glEnd()
+
+
+    glPopMatrix()  
+
 
 #paco
 def dibujarCarrito():
@@ -455,6 +959,7 @@ def dibujarPiso():
 
 def dibujar():
     #rutinas de dibujo
+    dibujarMolino()
     dibujarGranero()
     dibujarObstaculo()
     dibujarPiso()
@@ -462,10 +967,15 @@ def dibujar():
     dibujarSol()
     dibujarNubes()
     dibujarPaja()
-    dibujarMolino()
+    dibujarPaja2()
+    dibujarAve()
+    dibujarAve2()
     dibujarCarrito()
+
+
     
 def main():
+
     #inicia glfw
     if not glfw.init():
         return
@@ -531,3 +1041,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
