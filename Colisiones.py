@@ -6,17 +6,39 @@ from math import *
 xObstaculo = 0.0
 yObstaculo = -0.6
 
+xPaja = 0.0
+yPaja = -0.3
+
 xCarrito = -0.6
 yCarrito = -0.35
+yrCarrito = 0.0
+
 
 xPiso = 0.0
 yPiso = 0.0
 
-xNube = 0.0
+xNube = 0.8
 
 tiempo_anterior = 0
 
 colisionando = False
+
+def checar_colisiones():
+    global colisionando
+    global xPaja
+    global yPaja
+    global xCarrito
+    global yCarrito 
+
+    #Si extremaDerechaCarrito > extremaIzquiedaObstaculo
+    # Y extremaIzquierdaCarrito < extremaDerechaObstaculo
+    # Y extremoSuperirorCarrito > extremoInferirorObstaculo
+    # Y extremoSuperirorCarrito < extremoInferirorObstaculo
+    if xPaja + 0.05 > xCarrito - 0.15 and xPaja - 0.05 < xCarrito + 0.15 and yPaja + 0.05 > yCarrito - 0.15 and yPaja - 0.05 < yCarrito + 0.15:
+        colisionando = True
+    else:
+        colisionando = False
+
 
 def chocando(x1,y1,w1,h1,x2,y2,w2,h2):
     #si extremaDerechaCarrito > extremaIquierdaCarrito
@@ -29,6 +51,7 @@ def actualizar(window):
     global xCarrito
     global yCarrito
     global xNube
+    global yrCarrito
 
     tiempo_actual = glfw.get_time()
     tiempo_delta = tiempo_actual - tiempo_anterior
@@ -45,23 +68,58 @@ def actualizar(window):
    
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
         xCarrito = (xCarrito - 0.003)
+        if yrCarrito == 0:
+            yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
         xCarrito = (xCarrito + 0.003)
+        if yrCarrito == -180:
+            yrCarrito = 0
+
     if estadoAbajo == glfw.PRESS and yCarrito - 0.05 > -1:
         if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
             yCarrito = yCarrito - 0.03
     if estadoArriba == glfw.PRESS and yCarrito + 0.05 + 0.01 < 1:
         if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = (yCarrito + 0.4) 
+            yCarrito = (yCarrito + 0.3)
     
     if (xNube > -2):
         xNube = xNube - 0.0001
+    else:
+        xNube = 0.8
+
+def dibujarSilo():
+    glPushMatrix()
+    glTranslate(0,0,0)
+    glBegin(GL_QUADS)
+    glColor3f(0.5,0.5,0.5)
+    glVertex2f(0.8,-0.45)
+    glVertex2f(0.6,-0.45)
+    glVertex2f(0.6,0.0)
+    glVertex2f(0.8,0.0)
+    glEnd()
+    glPopMatrix()
+
+    glBegin(GL_POLYGON)
+    for x in range(360):
+        angulo = x * 3.14159 / 180.0
+        glVertex3f(cos(angulo) * 0.1 + 0.7 , sin(angulo) * 0.1 - 0.0 ,0.0)
+    glEnd()
+
+
+
+def dibujarSol():
+    glColor3f(1,1,0)
+    glBegin(GL_POLYGON)
+    for x in range(360):
+        angulo = x * 3.14159 / 180.0
+        glVertex3f(cos(angulo) * 0.2 + 0.5 , sin(angulo) * 0.2 + 0.6 ,0.0)
+    glEnd()
 
 def dibujarObstaculo():
     global xObstaculo
     global yObstaculo
-    glPushMatrix()
 
+    glPushMatrix()
     glTranslate(xObstaculo, yObstaculo,0.0)
     glBegin(GL_QUADS)
     glColor3f(0,0.6,0.1)
@@ -72,13 +130,34 @@ def dibujarObstaculo():
     glEnd()
     glPopMatrix()
 
+def dibujarPaja():
+    global xPaja
+    global yPaja
+    global colisionando
+    
+    glPushMatrix()
+    glTranslate(xPaja,yPaja,0.0)
+    glBegin(GL_QUADS)
+    if colisionando == True:
+        glColor3f(1.0, 1.0, 1.0)
+    else:
+        glColor3f(0.0,0.0,1.0)
+    glVertex3f(-0.15, 0.15, 0.0)
+    glVertex3f(0.15, 0.15, 0.0)
+    glVertex3f(0.15, -0.15, 0.0)
+    glVertex3f(-0.15, -0.15, 0.0)
+    glEnd()
+    glPopMatrix()    
+
 #paco
 def dibujarCarrito():
     global xCarrito
     global yCarrito
+    global yrCarrito
 
     glPushMatrix()
     glTranslate(xCarrito, yCarrito, 0.0)
+    glRotate(yrCarrito,0.0,1.0,0.0)
     glBegin(GL_POLYGON)
     glColor3f(1,1,1)
 
@@ -279,8 +358,11 @@ def dibujar():
     dibujarGranero()
     dibujarObstaculo()
     dibujarPiso()
-    dibujarCarrito()
+    dibujarSilo()
+    dibujarSol()
     dibujarNubes()
+    dibujarPaja()
+    dibujarCarrito()
     
 def main():
     #inicia glfw
