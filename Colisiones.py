@@ -21,6 +21,7 @@ yPiso = 0.0
 xNube = 0.8
 
 tiempo_anterior = 0
+saltando = 0
 
 colisionando = False
 
@@ -53,6 +54,8 @@ def actualizar(window):
     global yCarrito
     global xNube
     global yrCarrito
+    global saltando
+    
 
     tiempo_actual = glfw.get_time()
     tiempo_delta = tiempo_actual - tiempo_anterior
@@ -64,24 +67,27 @@ def actualizar(window):
 
     if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
             yCarrito = yCarrito - 0.01
-    
-   
+
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - 0.01)
+        xCarrito = (xCarrito - 0.02)
         if yrCarrito == 0:
             yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = ((xCarrito + 0.01) * tiempo_delta)/tiempo_actual
+        xCarrito = ((xCarrito + 0.02) * tiempo_delta)/tiempo_actual
         if yrCarrito == -180:
             yrCarrito = 0
 
-    if estadoAbajo == glfw.PRESS and yCarrito - 0.05 > -1:
+    if estadoAbajo == glfw.PRESS and yCarrito - 0.05 > -1 and saltando == 0:
         if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
             yCarrito = yCarrito - 0.03
     if estadoArriba == glfw.PRESS and yCarrito + 0.05 + 0.01 < 1:
         if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            while(yCarrito < 0.5):
-                yCarrito = ((yCarrito + 0.01) * tiempo_delta)/tiempo_actual 
+            saltando = 1
+
+    if saltando == 1:
+        yCarrito = yCarrito + 0.06
+    if yCarrito >= 0.2:
+        saltando = 0
                 
     
     if (xNube > -2):
@@ -362,7 +368,7 @@ def dibujar():
     dibujarObstaculo()
     dibujarPiso()
     dibujarSilo()
-    #dibujarSol()
+    dibujarSol()
     dibujarNubes()
     dibujarPaja()
     dibujarCarrito()
