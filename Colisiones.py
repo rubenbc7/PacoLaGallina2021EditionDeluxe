@@ -8,7 +8,7 @@ xObstaculo = 0.0
 yObstaculo = -0.6
 
 xPaja = 0.0
-yPaja = -0.3
+yPaja = -0.4
 
 xCarrito = -0.6
 yCarrito = -0.35
@@ -35,7 +35,7 @@ def checar_colisiones():
     # Y extremaIzquierdaCarrito < extremaDerechaObstaculo
     # Y extremoSuperirorCarrito > extremoInferirorObstaculo
     # Y extremoSuperirorCarrito < extremoInferirorObstaculo
-    if xPaja + 0.05 > xCarrito - 0.15 and xPaja - 0.05 < xCarrito + 0.15 and yPaja + 0.05 > yCarrito - 0.15 and yPaja - 0.05 < yCarrito + 0.15:
+    if xPaja + 0.05 > xCarrito - 0.05 and xPaja - 0.05 < xCarrito + 0.05 and yPaja + 0.05 > yCarrito - 0.05 and yPaja - 0.05 < yCarrito + 0.05:
         colisionando = True
     else:
         colisionando = False
@@ -57,7 +57,6 @@ def actualizar(window):
     tiempo_actual = glfw.get_time()
     tiempo_delta = tiempo_actual - tiempo_anterior
 
-
     estadoIzquierda = glfw.get_key(window, glfw.KEY_LEFT)
     estadoDerecha = glfw.get_key(window, glfw.KEY_RIGHT)
     estadoAbajo = glfw.get_key(window, glfw.KEY_DOWN)
@@ -70,11 +69,11 @@ def actualizar(window):
     
    
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - 0.003) 
+        xCarrito = ((xCarrito - 0.01) * tiempo_delta)/tiempo_actual
         if yrCarrito == 0:
             yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = (xCarrito + 0.003)
+        xCarrito = ((xCarrito + 0.01) * tiempo_delta)/tiempo_actual
         if yrCarrito == -180:
             yrCarrito = 0
 
@@ -83,14 +82,16 @@ def actualizar(window):
             yCarrito = yCarrito - 0.03
     if estadoArriba == glfw.PRESS and yCarrito + 0.05 + 0.01 < 1:
         if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = (yCarrito + 0.3) * tiempo_delta
+            while(yCarrito < 0.5):
+                yCarrito = ((yCarrito + 0.01) * tiempo_delta)/tiempo_actual 
+                
     
     if (xNube > -2):
         xNube = xNube - 0.0001
     else:
         xNube = 0.8
+    
 
-    tiempo_anterior = tiempo_actual
 
 def dibujarSilo():
     glPushMatrix()
@@ -109,7 +110,6 @@ def dibujarSilo():
         angulo = x * 3.14159 / 180.0
         glVertex3f(cos(angulo) * 0.1 + 0.7 , sin(angulo) * 0.1 - 0.0 ,0.0)
     glEnd()
-
 
 
 def dibujarSol():
