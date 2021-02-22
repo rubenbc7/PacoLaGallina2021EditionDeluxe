@@ -25,6 +25,8 @@ saltando = 0
 
 colisionando = False
 
+angMolino = 0
+
 def checar_colisiones():
     global colisionando
     global xPaja
@@ -55,7 +57,7 @@ def actualizar(window):
     global xNube
     global yrCarrito
     global saltando
-    
+    global angMolino
 
     tiempo_actual = glfw.get_time()
     tiempo_delta = tiempo_actual - tiempo_anterior
@@ -71,11 +73,11 @@ def actualizar(window):
             yCarrito = yCarrito - 0.01
 
     if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - 0.02)
+        xCarrito = (xCarrito - 0.01)
         if yrCarrito == 0:
             yrCarrito = (yrCarrito - 180)
     if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = ((xCarrito + 0.02) * tiempo_delta)/tiempo_actual
+        xCarrito = ((xCarrito + 0.01) * tiempo_delta)/tiempo_actual
         if yrCarrito == -180:
             yrCarrito = 0
 
@@ -97,6 +99,8 @@ def actualizar(window):
     else:
         xNube = 0.8
     
+    angMolino = angMolino + 0.1
+
 
 
 def dibujarSilo():
@@ -348,6 +352,91 @@ def dibujarNubes():
     glEnd()
     glPopMatrix()
 
+def dibujarMolino():
+    global angMolino
+
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+
+    glBegin(GL_QUADS)
+    glColor3f(0.5,0.5,0.5)
+    glVertex2f(0.1,0.0)
+    glVertex2f(0.07,0.0)
+    glVertex2f(0.05,0.5)
+    glVertex2f(0.02,0.5)
+
+    glVertex2f(-0.1,0.0)
+    glVertex2f(-0.07,0.0)
+    glVertex2f(-0.05,0.5)
+    glVertex2f(-0.02,0.5)
+    
+    glVertex2f(0.05,0.5)
+    glVertex2f(-0.05,0.5)
+    glVertex2f(-0.05,0.45)
+    glVertex2f(0.05,0.45)    
+    
+    glVertex2f(0.05,0.35)
+    glVertex2f(-0.05,0.35)
+    glVertex2f(-0.05,0.3)
+    glVertex2f(0.05,0.3)    
+
+    glVertex2f(0.05,0.25)
+    glVertex2f(-0.05,0.25)
+    glVertex2f(-0.05,0.2)
+    glVertex2f(0.05,0.2)    
+
+    glVertex2f(0.07,0.15)
+    glVertex2f(-0.07,0.15)
+    glVertex2f(-0.07,0.1)
+    glVertex2f(0.07,0.1)  
+
+
+    glEnd()
+
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(0.0,0.05,0.0)
+    glRotate(angMolino,0.0,0.0,1.0)
+    
+    glBegin(GL_QUADS)
+    glColor3f(1,0,0)
+    glVertex2f(0.01,0.1)
+    glVertex2f(-0.01,0.1)
+    glVertex2f(-0.01,-0.1)
+    glVertex2f(0.01,-0.1)
+
+    glVertex2f(0.1,0.01)
+    glVertex2f(-0.1,0.01)
+    glVertex2f(-0.1,-0.01)
+    glVertex2f(0.1,-0.01)
+
+    glVertex2f(0.075,0.085)
+    glVertex2f(0.065,0.1)
+    glVertex2f(-0.075,-0.085)
+    glVertex2f(-0.065,-0.1)
+
+    glVertex2f(0.075,-0.085)
+    glVertex2f(0.065,-0.1)
+    glVertex2f(-0.075,0.085)
+    glVertex2f(-0.065,0.1)
+
+    glEnd()
+    glPopMatrix()
+
+
+
+    glPushMatrix()
+    glTranslate(0,-0.45,0)
+    glBegin(GL_POLYGON)
+    glColor3f(0.8,0.8,0.8)
+    for x in range(360):
+        angulo = x * 3.14159 / 180.0
+        glVertex3f(cos(angulo) * 0.02 + 0.0 , sin(angulo) * 0.02 + 0.5 ,0.0)
+    glEnd()
+    glPopMatrix()
+
+
 
 def dibujarPiso():
     global xPiso
@@ -373,6 +462,7 @@ def dibujar():
     dibujarSol()
     dibujarNubes()
     dibujarPaja()
+    dibujarMolino()
     dibujarCarrito()
     
 def main():
