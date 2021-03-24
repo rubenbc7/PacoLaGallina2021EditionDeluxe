@@ -5,9 +5,16 @@ from math import *
 import sys
 import playsound
 import time
+from Carrito import *
+from Obstaculo import *
+from Piso import *
+from Nube import *
 
-xObstaculo = 0.0
-yObstaculo = -0.6
+#llamado a clases
+carrito = Carrito()
+obstaculo = Obstaculo(0.0 , -0.6)
+piso = Piso(0.0 , 0.0)
+nube = Nube(0.8)
 
 xPaja = 0.0
 yPaja = -0.4
@@ -29,18 +36,10 @@ yAve2 = -0.2
 DirAve2 = 1
 yrAve2 = 0.0
 
-xCarrito = -0.6
-yCarrito = -0.35
-yrCarrito = 0.0
-
-
-xPiso = 0.0
-yPiso = 0.0
-
-xNube = 0.8
 tiempo_anterior = 0
 saltando = 0
-vidas=12
+vidas=1001
+
 
 
 playsound.playsound('music.mp3', False)
@@ -54,8 +53,8 @@ def checar_colisiones():
     global colisionando
     global xPaja
     global yPaja
-    global xCarrito
-    global yCarrito 
+    
+    global carrito 
     global xAve
     global yAve
     global xAve2
@@ -67,13 +66,13 @@ def checar_colisiones():
     # Y extremaIzquierdaCarrito < extremaDerechaObstaculo
     # Y extremoSuperirorCarrito > extremoInferirorObstaculo
     # Y extremoSuperirorCarrito < extremoInferirorObstaculo
-    if xPaja + 0.05 > xCarrito - 0.05 and xPaja - 0.05 < xCarrito + 0.05 and yPaja + 0.05 > yCarrito - 0.05 and yPaja - 0.05 < yCarrito + 0.05:
+    if xPaja + 0.05 > carrito.Xpos - 0.05 and xPaja - 0.05 < carrito.Xpos + 0.05 and yPaja + 0.05 > carrito.Ypos - 0.05 and yPaja - 0.05 < carrito.Ypos + 0.05:
         colisionando = True
-    elif xAve + 0.05 > xCarrito - 0.05 and xAve - 0.05 < xCarrito + 0.05 and yAve + 0.05 > yCarrito - 0.05 and yAve - 0.05 < yCarrito + 0.05:
+    elif xAve + 0.05 > carrito.Xpos - 0.05 and xAve - 0.05 < carrito.Xpos + 0.05 and yAve + 0.05 > carrito.Ypos - 0.05 and yAve - 0.05 < carrito.Ypos + 0.05:
         colisionando = True
-    elif xAve2 + 0.05 > xCarrito - 0.05 and xAve2 - 0.05 < xCarrito + 0.05 and yAve2 + 0.05 > yCarrito - 0.05 and yAve2 - 0.05 < yCarrito + 0.05:
+    elif xAve2 + 0.05 > carrito.Xpos - 0.05 and xAve2 - 0.05 < carrito.Xpos + 0.05 and yAve2 + 0.05 > carrito.Ypos - 0.05 and yAve2 - 0.05 < carrito.Ypos + 0.05:
         colisionando = True
-    elif xPaja2 + 0.05 > xCarrito - 0.05 and xPaja2 - 0.05 < xCarrito + 0.05 and yPaja2 + 0.05 > yCarrito - 0.05 and yPaja2 - 0.05 < yCarrito + 0.05:
+    elif xPaja2 + 0.05 > carrito.Xpos - 0.05 and xPaja2 - 0.05 < carrito.Xpos + 0.05 and yPaja2 + 0.05 > carrito.Ypos - 0.05 and yPaja2 - 0.05 < carrito.Ypos + 0.05:
         colisionando = True
 
     else:
@@ -88,10 +87,10 @@ def chocando(x1,y1,w1,h1,x2,y2,w2,h2):
 
 def actualizar(window):
     global tiempo_anterior
-    global xCarrito
-    global yCarrito
-    global xNube
-    global yrCarrito
+    
+    global carrito
+    global nube
+    
     global saltando
     global angMolino
 
@@ -163,35 +162,35 @@ def actualizar(window):
 
     checar_colisiones()
 
-    if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = yCarrito - 0.01
+    if not chocando(carrito.Xpos, carrito.Ypos - 0.01, 0.05, 0.05, obstaculo.Xpos, obstaculo.Ypos, 1, 0.15):
+            carrito.Ypos = carrito.Ypos - 0.01
 
-    if estadoIzquierda == glfw.PRESS and xCarrito - 0.05 > -1:
-        xCarrito = (xCarrito - vmx)
-        if yrCarrito == 0:
-            yrCarrito = (yrCarrito - 180)
-    if estadoDerecha == glfw.PRESS and xCarrito + 0.05 < 1:
-        xCarrito = xCarrito + vmx
-        if yrCarrito == -180:
-            yrCarrito = 0
+    if estadoIzquierda == glfw.PRESS and carrito.Xpos - 0.05 > -1:
+        carrito.Xpos = (carrito.Xpos - vmx)
+        if carrito.Yrpos == 0:
+            carrito.Yrpos = (carrito.Yrpos - 180)
+    if estadoDerecha == glfw.PRESS and carrito.Xpos + 0.05 < 1:
+        carrito.Xpos = carrito.Xpos + vmx
+        if carrito.Yrpos == -180:
+            carrito.Yrpos = 0
 
-    if estadoAbajo == glfw.PRESS and yCarrito - 0.05 > -1 and saltando == 0:
-        if not chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
-            yCarrito = yCarrito - 0.03
-    if estadoArriba == glfw.PRESS and yCarrito + 0.05 + 0.01 < 1:
-        if chocando(xCarrito, yCarrito - 0.01, 0.05, 0.05, xObstaculo, yObstaculo, 1, 0.15):
+    if estadoAbajo == glfw.PRESS and carrito.Ypos - 0.05 > -1 and saltando == 0:
+        if not chocando(carrito.Xpos, carrito.Ypos - 0.01, 0.05, 0.05, obstaculo.Xpos, obstaculo.Ypos, 1, 0.15):
+            carrito.Ypos = carrito.Ypos - 0.03
+    if estadoArriba == glfw.PRESS and carrito.Ypos + 0.05 + 0.01 < 1:
+        if chocando(carrito.Xpos, carrito.Ypos - 0.01, 0.05, 0.05, obstaculo.Xpos, obstaculo.Ypos, 1, 0.15):
             saltando = 1
 
     if saltando == 1:
-        yCarrito = yCarrito + 0.06
-    if yCarrito >= 0.2:
+        carrito.Ypos = carrito.Ypos + 0.06
+    if carrito.Ypos >= 0.2:
         saltando = 0
                 
     #Nube
-    if (xNube > -2):
-        xNube = xNube - 0.0001
+    if (nube.xPos > -2):
+        nube.xPos = nube.xPos - 0.0001
     else:
-        xNube = 0.8
+        nube.xPos = 0.8
     
     angMolino = angMolino + 0.1
 
@@ -226,34 +225,19 @@ def dibujarSol():
         glVertex3f(cos(angulo) * 0.2 + 0.5 , sin(angulo) * 0.2 + 0.6 ,0.0)
     glEnd()
 
-def dibujarObstaculo():
-    global xObstaculo
-    global yObstaculo
-
-    glPushMatrix()
-    glTranslate(xObstaculo, yObstaculo,0.0)
-    glBegin(GL_QUADS)
-    glColor3f(0,0.6,0.1)
-    glVertex3f(-1,0.15,0.0)
-    glVertex3f(1,0.15,0.0)
-    glVertex3f(1,-0.15,0.0)
-    glVertex3f(-1,-0.15,0.0)
-    glEnd()
-    glPopMatrix()
-
 def dibujarPaja():
     global xPaja
     global yPaja
     global colisionando
     global yrPaja
     global vidas
-    global yCarrito
+    global carrito
     
     if colisionando == True:
         playsound.playsound('uff.mp3', False)
         if vidas > 0:
             vidas = vidas - 1
-            yCarrito = yCarrito + 0.3
+            carrito.Ypos = carrito.Ypos + 0.3
             if vidas == 11:
                 print("Te quedan 2 vidas extra.")
             elif vidas == 7:
@@ -397,12 +381,12 @@ def dibujarPaja2():
     global colisionando
     global yrPaja2
     global vidas
-    global yCarrito
+    global carrito
     
     if colisionando == True:
         if vidas > 0:
             vidas = vidas - 1
-            yCarrito = yCarrito + 0.3
+            carrito.Ypos = carrito.Ypos + 0.3
             if vidas == 11:
                 print("Te quedan 2 vidas extra.")
             elif vidas == 7:
@@ -546,12 +530,12 @@ def dibujarAve():
     global colisionando
     global yrAve
     global vidas
-    global yCarrito
+    global carrito
     
     if colisionando == True:
         if vidas > 0:
             vidas = vidas - 1
-            yCarrito = yCarrito + 0.3
+            carrito.Ypos = carrito.Ypos + 0.3
             if vidas == 11:
                 print("Te quedan 2 vidas extra.")
             elif vidas == 7:
@@ -610,12 +594,12 @@ def dibujarAve2():
     global colisionando
     global yrAve2
     global vidas
-    global yCarrito
+    global carrito
     
     if colisionando == True:
         if vidas > 0:
             vidas = vidas - 1
-            yCarrito = yCarrito + 0.3
+            carrito.Ypos = carrito.Ypos + 0.3
             if vidas == 11:
                 print("Te quedan 2 vidas extra.")
             elif vidas == 7:
@@ -669,93 +653,6 @@ def dibujarAve2():
 
 
 #paco
-def dibujarCarrito():
-    global xCarrito
-    global yCarrito
-    global yrCarrito
-
-    glPushMatrix()
-    glTranslate(xCarrito, yCarrito, 0.0)
-    glRotate(yrCarrito,0.0,1.0,0.0)
-    glBegin(GL_POLYGON)
-    glColor3f(1,1,1)
-
-    #cuerpo
-    glVertex3f(-0.05,0.01,0.0)
-    glVertex3f(0.03,0.01,0.0)
-    glVertex3f(0.03,-0.02,0.0)
-    glVertex3f(-0.04,-0.02,0.0)
-
-    glVertex3f(-0.04,-0.02,0.0)
-    glVertex3f(0.02,-0.02,0.0)
-    glVertex3f(0.02,-0.03,0.0)
-    glVertex3f(-0.02,-0.03,0.0)
-    glEnd()
-
-    #patas
-    glBegin(GL_POLYGON)
-    glColor3f(1,0.9,0.25)
-    glVertex2f(0.0,-0.03)
-    glVertex2f(0.01,-0.03)
-    glVertex2f(0.01,-0.06)
-    glVertex2f(0.00,-0.06)
-    glEnd()
-    
-    glBegin(GL_POLYGON)
-    glVertex2f(-0.02,-0.03)
-    glVertex2f(-0.01,-0.03)
-    glVertex2f(-0.01,-0.06)
-    glVertex2f(-0.02,-0.06)
-    glEnd()
-
-    #cabeza
-    glBegin(GL_POLYGON)
-    glColor3f(1,1,1)
-    glVertex2f(0.01,0.01)
-    glVertex2f(0.03,0.01)
-    glVertex2f(0.03,0.03)
-    glVertex2f(0.01,0.03)
-    glEnd()
-
-    #cresta
-    glBegin(GL_POLYGON)
-    glColor3f(1,0,0)
-    glVertex2f(0.01,0.03)
-    glVertex2f(0.04,0.03)
-    glVertex2f(0.04,0.04)
-    glVertex2f(0.01,0.04)
-    glEnd()
-
-    #pico
-    glBegin(GL_POLYGON)
-    glColor3f(1,0.9,0.25)
-    glVertex2f(0.03,0.01)
-    glVertex2f(0.05,0.01)
-    glVertex2f(0.05,0.02)
-    glVertex2f(0.03,0.02)
-    glEnd()
-
-    #barbilla
-    glBegin(GL_POLYGON)
-    glColor3f(1,0,0)
-    glVertex2f(0.03,0.01)
-    glVertex2f(0.04,0.01)
-    glVertex2f(0.04,0.00)
-    glVertex2f(0.03,0.00)
-    glEnd()
-
-    #cola
-    glBegin(GL_POLYGON)
-    glColor3f(1,1,1)
-    glVertex2f(-0.02,0.01)
-    glVertex2f(-0.05,0.01)
-    glVertex2f(-0.045,0.015)
-    glVertex2f(-0.02,0.015)
-    glEnd()
-
-
-    glPopMatrix()
-
 def dibujarGranero():
     glPushMatrix()
     glTranslate(0,-0.45,0)
@@ -839,20 +736,6 @@ def dibujarGranero():
     glVertex2f(-0.5,0.0)
     glVertex2f(-0.5,0.2)
     glVertex2f(-0.7,0.2)
-    glEnd()
-    glPopMatrix()
-
-def dibujarNubes():
-    global xNube
-    glPushMatrix()
-    glTranslate(xNube,0,0)
-    glBegin(GL_POLYGON)
-    glColor3f(1,1,1)
-    for x in range(360):
-        angulo = x * 3.14159 / 180.0
-        glVertex3f(cos(angulo) * 0.3 + 0.6 , sin(angulo) * 0.06 + 0.4 ,0.0)
-    glColor3f(0,0,0)
-
     glEnd()
     glPopMatrix()
 
@@ -940,37 +823,26 @@ def dibujarMolino():
     glEnd()
     glPopMatrix()
 
-
-
-def dibujarPiso():
-    global xPiso
-    global yPiso
-
-    glPushMatrix()
-    glTranslate(xPiso, yPiso, 0.0)
-    glBegin(GL_QUADS)
-    glColor3f(1,0.7,0.0)
-    glVertex3f(-1,-0.6,0.0)
-    glVertex3f(1,-0.6,0.0)
-    glVertex3f(1,-1,0.0)
-    glVertex3f(-1,-1,0.0)
-    glEnd()
-    glPopMatrix()
-
 def dibujar():
+
+    global carrito
+    global obstaculo
+    global piso
+    global nube
     #rutinas de dibujo
     dibujarMolino()
     dibujarGranero()
-    dibujarObstaculo()
-    dibujarPiso()
+    obstaculo.dibujar()
+    piso.dibujar()
     dibujarSilo()
     dibujarSol()
-    dibujarNubes()
+    nube.dibujar()
     dibujarPaja()
     dibujarPaja2()
     dibujarAve()
     dibujarAve2()
-    dibujarCarrito()
+    carrito.dibujar()
+    
 
 
     
